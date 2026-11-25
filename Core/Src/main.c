@@ -69,7 +69,7 @@ static void MX_USART6_UART_Init(void);
 #define RCC_APB2ENR (*(volatile uint32_t*)(RCC_BASE + 0x44))
 
 #define GIPOG_MODER (*(volatile uint32_t*)GPIOG_BASE)
-#define GPIOG_AFRH (*(volatile uint32_t*)(GPIO_BASE + 0x24))
+#define GPIOG_AFRH (*(volatile uint32_t*)(GPIOG_BASE + 0x24))
 
 #define USART6_SR (*(volatile uint32_t*)USART6_BASE)
 #define USART6_DR (*(volatile uint32_t*)(USART6_BASE + 0x04))
