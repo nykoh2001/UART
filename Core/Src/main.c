@@ -144,7 +144,7 @@ int main(void)
 
     /* 5. Transmit */
     // TXE check -> if empty: transmit data -> check TC -> if TC: repeat
-    if (!((USART6_SR >> 7) & 1u)) { // if TXE, write data to DR
+    if ((USART6_SR >> 7) & 1u) { // if TXE, write data to DR
       USART6_DR = data[idx++];
     }
     // while (!((USART6_SR >> 6) & 1u)) {} // Wait until TC becomes 1
