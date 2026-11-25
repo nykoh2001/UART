@@ -121,11 +121,11 @@ int main(void)
   GPIOG_AFRH &= ~(((1u << 4) - 1) << (4 * 6));
   GPIOG_AFRH |= (1u << 3) << (4 * 6); // ARRH14 -> 1000 (AF8)
 
-  /* 3. Set UE, TE */
-  USART6_CR1 |= (1u << 3) | (1u << 13); // set UE, TE
-
-  /* 4. Calc BR */
+  /* 3. Calc BR - NOTE: BRR calc. first, USART starts transmission once TE is set */
   USART6_BRR = (16000000u + 9600u / 2) / 9600u;
+
+  /* 4. Set UE, TE */
+  USART6_CR1 |= (1u << 3) | (1u << 13); // set UE, TE
 
   char *data = "DUMMYdummy";
   uint8_t data_size = 10;
