@@ -18,6 +18,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include <stdint.h>
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -56,6 +57,25 @@ static void MX_USART6_UART_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+#define AHB1_BASE 0x40020000
+#define APB2_BASE 0x40010000
+
+#define RCC_BASE (AHB1_BASE + 0x3800)
+
+#define GPIOG_BASE (AHB1_BASE + 0x1800)
+#define USART6_BASE (APB2_BASE + 0x1400)
+
+#define RCC_AHB1ENR (*(volatile uint32_t*)(RCC_BASE + 0x30))
+#define RCC_APB2ENR (*(volatile uint32_t*)(RCC_BASE + 0x44))
+
+#define GIPOG_MODER (*(volatile uint32_t*)GPIOG_BASE)
+#define GPIOG_AFRH (*(volatile uint32_t*)(GPIO_BASE + 0x24))
+
+#define USART6_SR (*(volatile uint32_t*)USART6_BASE)
+#define USART6_DR (*(volatile uint32_t*)(USART6_BASE + 0x04))
+#define USART6_BRR (*(volatile uint32_t*)(USART6_BASE + 0x08))
+#define USART6_CR1 (*(volatile uint32_t*)(USART6_BASE + 0x0C))
+
 
 /* USER CODE END 0 */
 
@@ -91,15 +111,43 @@ int main(void)
   MX_USART6_UART_Init();
   /* USER CODE BEGIN 2 */
 
+  /* 1. Enable Clock */
+  RCC_AHB1ENR |= (1u << 6); // GPIOGEN
+  RCC_APB2ENR |= (1u << 5);   // USART6EN
+
+  /* 2. Alternate Function Mode */
+  GIPOG_MODER &= ~(((1u << 2) - 1) << (2 * 14)); // P14 -> Alternate Function mode
+  GIPOG_MODER |= (1u << 1) << (2 * 14);
+
+  GPIOG_AFRH &= ~(((1u << 4) - 1) << (4 * 6));
+  GPIOG_AFRH |= (1u << 3) << (4 * 6); // ARRH14 -> 1000 (AF8)
+
+  /* 3. Set UE, TE */
+  USART6_CR1 |= (1u << 3) | (1u << 13); // set UE, TE
+
+  /* 4. Calc BR */
+  USART6_BRR = (16000000u + 9600u / 2) / 9600u;
+
+  char *data = "DUMMYdummy";
+  uint8_t data_size = 10;
+  volatile uint8_t idx = 0;
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  while (1)
+  while (idx < data_size)
   {
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+
+    /* 5. Transmit */
+    // TXE check -> if empty: transmit data -> check TC -> if TC: repeat
+    if (!((USART6_SR >> 7) & 1u)) { // if TXE, write data to DR
+      USART6_DR = data[idx++];
+    }
+    // while (!((USART6_SR >> 6) & 1u)) {} // Wait until TC becomes 1
   }
   /* USER CODE END 3 */
 }
