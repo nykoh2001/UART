@@ -129,7 +129,7 @@ int main(void)
 
   char *data = "DUMMYdummy";
   uint8_t data_size = 10;
-  volatile uint8_t idx = 0;
+  uint8_t idx = 0; // NOTE: volatile not required since it is not a register (No cache in compiler opti.)
 
   /* USER CODE END 2 */
 
