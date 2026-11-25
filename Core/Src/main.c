@@ -146,7 +146,7 @@ int main(void)
     if ((USART6_SR >> 7) & 1u) { // if TXE, write data to DR
       USART6_DR = data[idx++];
     }
-    // while (!((USART6_SR >> 6) & 1u)) {} // Wait until TC becomes 1
+    // while (!((USART6_SR >> 6) & 1u)) {} // Wait until TC becomes 1, TODO: Check if it is emittable regarding TDR -> Shift -> TX archi.
   }
   /* USER CODE END 3 */
 }
